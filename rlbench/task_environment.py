@@ -101,12 +101,17 @@ class TaskEnvironment(object):
     def get_observation(self) -> Observation:
         return self._scene.get_observation()
 
-    def step(self, action) -> (Observation, int, bool):
+    def step(self, action, visual_targets) -> (Observation, int, bool):
         # returns observation, reward, done, info
         if not self._reset_called:
             raise RuntimeError(
                 "Call 'reset' before calling 'step' on a task.")
-        self._action_mode.action(self._scene, action)
+        self._action_mode.action(self._scene, action) # snap 
+
+        for arm in visual_targets:
+            for sphere in arm:
+                sphere.set_renderable(False)
+
         success, terminate = self._task.success()
         reward = float(success)
         if self._shaped_rewards:
